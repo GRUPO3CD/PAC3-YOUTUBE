@@ -1,0 +1,502 @@
+# **PAC - Global YouTube Statistics 2023**
+
+---
+---
+---
+
+### GRUPO 3:
+
+### - Elvis Dany Valentín Victorino
+
+### - Jonathan Jerry Castillo Rodríguez
+
+### - Juan Carlos Guerra Sandoval
+
+### - Raúl Raico Gallardo
+
+---
+---
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Carga del Dataset
+
+```{r}
+df<-read.csv('data/Global YouTube Statistics.csv', encoding ='UTF-8', sep = ',')
+```
+
+## Exploración del DataFrame
+
+## Variables
+
+```{r}
+names(df)
+```
+
+## Contenido superior de DataFrame
+
+```{r}
+head(df)
+```
+
+## Filas y columnas del DataFrame
+
+```{r}
+dim(df)
+```
+
+## Resúmen Estadístico
+
+```{r}
+summary(df)
+```
+
+## Estructura del DatFrame
+
+```{r}
+str(df)
+```
+
+## Valores no nulos por columna
+
+```{r}
+non_null_count <- sapply(df, function(x) sum(!is.na(x)))
+non_null_count
+```
+
+## Matriz de valores faltantes (nulos)
+
+```{r}
+library(naniar)
+naniar::vis_miss(df)
+```
+
+## Nuevo DataFrame: df2 (sin variables con valores nulos o vacíos)
+
+```{r}
+library(dplyr)
+
+df2 <- df %>%
+  select_if(~all(!is.na(.)) & all(. != ""))
+```
+
+## Matriz de valores faltantes de df2
+
+```{r}
+naniar::vis_miss(df2)
+str(df2)
+```
+
+## Nuevo DataFrame: df3 (con promedio de ganancias anuales)
+
+```{r}
+#Se crea df3
+df3 <- df2
+
+#Se agrega la columna promedio de ganancias anuales
+df3$promedio_yearly_earnings <- rowMeans(df3[c("highest_yearly_earnings", "lowest_yearly_earnings")], na.rm = TRUE)
+```
+
+## Estructura de df3
+
+```{r}
+str(df3)
+```
+
+## Gráfico de Tendencias (Dispersión)
+
+## Gráfico de Dispersión de Promedio de ganacias anuales por números de vistas
+
+```{r}
+# Carga la librería
+library(ggplot2)
+
+
+plot1 <- ggplot(df3, aes(x = video.views, y = promedio_yearly_earnings)) +
+  geom_point() +
+  geom_smooth(method = "lm", col = "red") +
+  ggtitle("Tendencia entre \n Vistas de Videos y \n Ganancias Anuales") +
+  theme_minimal()
+
+
+plot2 <- ggplot(df3, aes(x = uploads, y = promedio_yearly_earnings)) +
+  geom_point() +
+  geom_smooth(method = "lm", col = "red") +
+  ggtitle("Tendencia entre \n Cargas y \n Ganancias Anuales") +
+  theme_minimal()
+
+# Crea un gráfico de dispersión con línea de regresión para 'subscribers' vs 'average_yearly_earnings'
+plot3 <- ggplot(df3, aes(x = subscribers, y = promedio_yearly_earnings)) +
+  geom_point() +
+  geom_smooth(method = "lm", col = "red") +
+  ggtitle("Tendencia entre \n Suscriptores y \n Ganancias Anuales") +
+  theme_minimal()
+
+# Muestra los gráficos en una fila
+library(gridExtra)
+grid.arrange(plot1, plot2, plot3, ncol = 2)
+```
+
+## Mapa de Calor
+
+```{r}
+# Carga las librerías
+library(ggplot2)
+library(corrplot)
+
+# Supongamos que df3 es tu conjunto de datos
+# Puedes ajustar el código según la estructura exacta de tu conjunto de datos
+
+# Selecciona las columnas relevantes
+df3_corr <- df3[, c('promedio_yearly_earnings', 'video.views', 'uploads', 'subscribers')]
+
+# Calcula la matriz de correlación
+corr_matrix <- cor(df3_corr)
+
+# Crea un mapa de calor de la matriz de correlación con tonalidades de rojo
+corrplot(corr_matrix, method = "color", type = "upper", col = colorRampPalette(c("white", "darkred"))(50), addCoef.col = "white", tl.cex = 0.7)
+```
+
+## Promedio de ganancias anuales por Categorías
+
+```{r}
+# install.packages("plotly")
+# install.packages("dplyr")
+library(plotly)
+library(dplyr)
+
+# Filtra las filas donde la categoría no es "nan"
+df3_filtered <- df3 %>%
+  filter(!is.na(category) & category != "nan")
+
+# Calcula el promedio de las ganancias anuales por categoría
+categories <- df3_filtered %>%
+  group_by(category) %>%
+  summarise(promedio_yearly_earnings = mean(promedio_yearly_earnings)) %>%
+  arrange(desc(promedio_yearly_earnings))
+
+# Crea el gráfico de barras con degradado de colores
+fig <- plot_ly(
+  data = categories,
+  x = ~reorder(category, promedio_yearly_earnings),
+  y = ~promedio_yearly_earnings,
+  type = "bar",
+  marker = list(color = ~promedio_yearly_earnings, colorscale = "Reds"),
+  text = ~paste(round(promedio_yearly_earnings / 1000000, 2), "M"),
+  hoverinfo = "text",
+  height = 500
+)
+
+# Personaliza el diseño del gráfico
+fig <- fig %>% layout(
+  title = "Promedio de ganancia anual por Categoría",
+  xaxis = list(title = "Categoría", titlefont_size = 16, categoryorder = "total descending"),
+  yaxis = list(title = "Promedio de ganancia anual", titlefont_size = 16),
+  showlegend = FALSE
+)
+
+# Muestra el gráfico
+fig
+```
+
+## Nube de Palabras de los Youtubers con más Suscriptores
+
+```{r}
+# Carga las librerías
+library(wordcloud2)
+library(tm)
+
+# Puedes ajustar el código según la estructura exacta de tu conjunto de datos
+df$Youtuber <- iconv(df$Youtuber, from = "UTF-8", to = "UTF-8", sub = "")
+# Crea un objeto Corpus para procesar el texto
+corpus <- Corpus(VectorSource(df$Youtuber))
+# Limpia el texto de manera más exhaustiva
+corpus <- tm_map(corpus, content_transformer(tolower))
+## Warning in tm_map.SimpleCorpus(corpus, content_transformer(tolower)):
+## transformation drops documents
+corpus <- tm_map(corpus, removePunctuation)
+## Warning in tm_map.SimpleCorpus(corpus, removePunctuation): transformation drops
+## documents
+corpus <- tm_map(corpus, removeNumbers)
+## Warning in tm_map.SimpleCorpus(corpus, removeNumbers): transformation drops
+## documents
+corpus <- tm_map(corpus, removeWords, stopwords("english"))
+## Warning in tm_map.SimpleCorpus(corpus, removeWords, stopwords("english")):
+## transformation drops documents
+corpus <- tm_map(corpus, stripWhitespace)
+## Warning in tm_map.SimpleCorpus(corpus, stripWhitespace): transformation drops
+## documents
+corpus <- tm_map(corpus, content_transformer(function(x) iconv(x, to = "UTF-8", sub =
+" ")))
+## Warning in tm_map.SimpleCorpus(corpus, content_transformer(function(x) iconv(x,
+## : transformation drops documents
+# Crea un dataframe con el nombre del Youtuber y sus suscriptores
+youtubers_data <- data.frame(Youtuber = sapply(corpus, function(x) as.character(x)),
+Subscribers = df$subscribers)
+library(colorRamps)
+# Definir una paleta de colores de degradado rojo
+red_palette <- colorRampPalette(c("White", "red"))
+# Especifica lana fuente Arial
+font <- "Arial Narrow "
+# Crea el gráfico de nube de palabras con wordcloud2 y la fuente especificada
+wordcloud2(data = youtubers_data, color = red_palette(100), backgroundColor = "black",
+fontFamily = font)
+```
+
+## Los 10 Youtubers con más Suscriptores (Millones)
+
+```{r}
+library(ggplot2)
+top10 <- head(df3, 10)
+# Ajusta el ancho completo del gráfico
+ggplot(top10, aes(x = reorder(Youtuber, -subscribers), y = subscribers, fill = subscribers)) +
+  geom_bar(stat = "identity", width = 1.0) +  # Ajusta el ancho de las barras aquí
+geom_text(aes(label = subscribers/1000000), vjust = -0.5, size = 2.4) +  # Agrega etiquetas
+  labs(title = "Los 10 Youtubers con más Suscriptores (Millones)", x = "Youtuber", y = "suscripciones") +
+  theme(
+axis.text.x = element_text(angle = 45, hjust = 1),  # Ajusta el ángulo de las etiquetas en el eje x
+    plot.title = element_text(size = 10),  # Ajusta el tamaño del título
+    plot.margin = margin(l = 1, r = 1, unit = "pt")  # Ajusta los márgenes del gráfico
+) +
+  scale_fill_gradient(low = "pink", high = "darkred")  # Define el degradado de colores
+```
+
+## Porcentaje de Canales por Categoría
+
+```{r}
+df3_category <- df3[, "category", drop = FALSE]
+
+df3_category_sin_nan <- df3_category[df3_category$category != "nan", , drop = FALSE]
+
+str(df3_category_sin_nan)
+
+# Calcula la frecuencia de cada valor en 'category'
+category_counts <- table(df3_category_sin_nan$category)
+
+# Calcula los porcentajes
+category_percentages <- prop.table(category_counts) * 100
+
+# Crea un dataframe con la información
+category_summary <- data.frame(
+  category = names(category_counts),
+  count = as.numeric(category_counts),
+  percentage = as.numeric(category_percentages)
+)
+
+# Muestra el resultado
+category_summary
+
+
+library(plotly)
+library(dplyr)
+
+
+# Calcula la frecuencia de cada categoría
+category <- table(df3_category_sin_nan$category)
+
+# Ordena las categorías por frecuencia ascendente
+category <- sort(category)
+
+# Crea el gráfico de pastel con plot_ly
+pie_chart <- plot_ly(
+  labels = names(category),
+  values = category,
+  type = "pie",
+  marker = list(colors = colorRampPalette(c("green", "red"))(length(category)))
+)
+
+# Personaliza el diseño del gráfico
+pie_chart <- pie_chart %>% layout(
+  title = "Canales por Categorías",
+  uniformtext = list(minsize = 10, mode = 'hide'),
+  template = 'plotly_white'
+)
+
+# Muestra el gráfico
+pie_chart
+```
+
+## Los 10 Países con mayor cantidad de Youtubers
+
+```{r}
+df3_Country <- df3[, "Country", drop = FALSE]
+
+df3_Country_sin_nan <- df3_Country[df3_Country$Country != "nan", , drop = FALSE]
+
+str(df3_Country_sin_nan)
+
+
+library(dplyr)
+
+country_counts <- table(df3_Country_sin_nan$Country)
+
+print(country_counts)
+
+top_10_countries <- head(sort(country_counts, decreasing = TRUE), 10)
+
+# Muestra los 10 valores más altos
+print(top_10_countries)
+
+library(plotly)
+
+# Crea el gráfico de embudo
+fig <- plot_ly(
+  type = "funnel",
+  x = top_10_countries,
+  textinfo = "value+text",
+  text = names(top_10_countries),
+  marker = list(
+    color = colorRampPalette(c("red", "pink"))(length(top_10_countries))
+  )
+)
+
+# Personaliza el diseño del gráfico
+fig <- fig %>% layout(
+  title = "Top 10 de Países con más de Youtubers",
+  template = 'plotly_white',
+  funnelmode = "stack",  # Puedes ajustar según tus preferencias
+  funnelgap = 0.2,  # Puedes ajustar según tus preferencias
+  textfont = list(size = 12)  # Ajusta este valor según sea necesario
+)
+
+# Muestra el gráfico
+fig
+```
+
+## Youtuber en el Mundo
+
+```{r}
+library(dplyr)
+library(plotly)
+
+# Calcula la frecuencia de cada país
+conteos_por_pais <- df3_Country_sin_nan %>%
+  count(Country, name = "Contar_por_pais")
+
+
+# Combina el resultado con el dataframe original
+df3_Country_sin_nan_2 <- left_join(df3_Country_sin_nan, conteos_por_pais, by = "Country")
+
+# Elimina duplicados en la variable Country
+df3_Country_sin_nan_2 <- df3_Country_sin_nan_2 %>% 
+  distinct(Country, .keep_all = TRUE)
+
+# Define la escala de colores personalizada
+custom_colorscale <- c(
+  c(0, "#115f9a"),
+  c(0.05, "#1984c5"),
+  c(0.1, "#22a7f0"),
+  c(0.2, "#48b5c4"),
+  c(0.4, "#76c68f"),
+  c(0.6, "#a6d75b"),
+  c(0.7, "#c9e52f"),
+  c(0.8, "#d0ee11"),
+  c(1, "#f4f100")
+)
+
+# Crea el gráfico de coropletas
+fig <- plot_ly(
+  data = df3_Country_sin_nan_2,
+  type = "choropleth",
+  locations = ~Country,
+  locationmode = "country names",
+  z = ~Contar_por_pais,
+  colorscale = custom_colorscale,
+  hoverinfo = "text",
+  text = ~paste("Nº Canales: ", Contar_por_pais),
+  title = "Distribución de Canales en el Mundo"
+)
+
+# Personaliza el diseño del gráfico
+fig <- fig %>% layout(
+  title = list(text = "Distribución de Canales en el Mundo", x = 0.3),
+  title_font = list(size = 18),
+  height = 630,
+  width = 1100,
+  geo = list(
+    showcoastlines = TRUE,
+    coastlinecolor = "Black",
+    showland = TRUE,
+    landcolor = "LightGray",
+    showocean = TRUE,
+    oceancolor = "LightBlue"
+  )
+)
+
+# Muestra el gráfico
+fig
+```
+
+## Promedio de Ganancias anuales por País
+
+```{r}
+library(plotly)
+library(dplyr)
+
+# Filtra las filas donde la categoría no es "nan"
+df3_filtered <- df3 %>%
+  filter(!is.na(Country) & Country != "nan")
+
+# Calcula el promedio de las ganancias anuales por país
+Country <- df3_filtered %>%
+  group_by(Country) %>%
+  summarise(promedio_yearly_earnings = mean(promedio_yearly_earnings)) %>%
+  arrange(desc(promedio_yearly_earnings))
+
+# Crea el gráfico de barras con degradado de colores
+fig <- plot_ly(
+  data = Country,
+  x = ~reorder(Country, promedio_yearly_earnings),
+  y = ~promedio_yearly_earnings,
+  type = "bar",
+  marker = list(color = ~promedio_yearly_earnings, colorscale = "Reds"),
+  text = ~paste(Country, round(promedio_yearly_earnings / 1000000, 2), "M"),
+  hoverinfo = "text",
+  height = 500
+)
+
+# Personaliza el diseño del gráfico
+fig <- fig %>% layout(
+  title = "Ganancia anual promedio por país",
+  xaxis = list(title = "País", titlefont_size = 16, categoryorder = "total descending"),
+  yaxis = list(title = "Ganancia anual promedio", titlefont_size = 16),
+  showlegend = FALSE
+)
+
+# Muestra el gráfico
+fig
+```
+
+## Ganancias Anuales Promedio de Youtubers por Suscriptores
+
+```{r}
+library(dplyr)
+
+df3_youtuber_ganancia <- df3
+df3_top_10 <- df3_youtuber_ganancia %>%
+  top_n(10, promedio_yearly_earnings)
+
+# Muestra el nuevo conjunto de datos con las 10 cifras más altas
+df3_top_10
+
+df3_top_10$Youtuber <- iconv(df3_top_10$Youtuber, from = "UTF-8", to = "UTF-8", sub = "")
+
+library(ggplot2)
+
+# Ajusta el tamaño del texto
+ggplot(df3_top_10, aes(x = Youtuber, y = subscribers, fill = promedio_yearly_earnings)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = paste0("$", promedio_yearly_earnings/1000000,"M")), vjust = -0.5, size = 2.4) +  # Ajusta el tamaño del texto
+  scale_fill_gradient(low = "lightcoral", high = "darkred") +
+  theme_minimal() +
+  labs(
+    title = "Ganancias Anuales Promedio de Youtubers por Suscriptores",
+    x = "Youtuber",
+    y = "Subscriptores",
+    #caption = "Ganancia anual promedio"
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
