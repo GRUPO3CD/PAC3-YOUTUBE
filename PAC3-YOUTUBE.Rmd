@@ -1,4 +1,16 @@
-# **PAC - Global YouTube Statistics 2023**
+---
+---
+---
+
+---
+---
+---
+
+# **ESTADÍSTICAS GLOBALES DE YOUTUBE 2023**
+
+---
+---
+---
 
 ---
 ---
@@ -18,8 +30,55 @@
 ---
 ---
 
+### Enlace del proyecto en GitHub:
+
+<https://github.com/GRUPO3CD/PAC3-YOUTUBE.git>
+
+---
+---
+---
+
+## PROBLEMA
+
+¿Cómo alcanzar el éxito sostenido en Youtube?
+
+## OBJETIVOS
+
+-   Analizar, procesar y describir el Dataset de Youtube.
+
+-   Identificar a los youtuber más populares.
+
+-   Analizar la variable que más influye en las ganancias de los youtubers.
+
+-   Determinar el tipo de contenido más visto.
+
+-   Identificar patrones y tendencias mas relevantes del Dataset.
+
+## HIPÓTESIS
+
+-   Los youtubers más populares con más suscriptores son los que tienen mayores ganancias.
+
+-   Los youtubers con más vistas son los que tienen mayores ganancias.
+
+-   El tipo del contenido asegura el éxito del canal.
+
+-   La Categoría de Educación se encuentra entre las menos visitadas en la Plataforma de Youtube.
+
+## DESCRIPCIÓN DEL DATASET
+
+El conjunto de datos de Youtube que vamos a utilizar, ofrece una vía perfecta para analizar y obtener información valiosa de esta plataforma. Con detalles como el número de suscriptores de los principales creadores, las visualizaciones de vídeo, la frecuencia de subida, el país de origen, las ganancias y mucho más, este tesoro de información es una visita obligada para los aspirantes a creadores de contenido, los entusiastas de los datos y cualquier persona intrigada por el panorama del contenido en línea que está en constante evolución.
+
+Enlace del Dataset (03/12/23): <https://www.kaggle.com/datasets/nelgiriyewithana/global-youtube-statistics-2023>
+
+---
+---
+---
+
+## ANÁLISIS EXPLORATORIO DE DATOS (EDA)
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
 ```
 
 ## Carga del Dataset
@@ -48,13 +107,29 @@ head(df)
 dim(df)
 ```
 
-## Resúmen Estadístico
+## Resumen Estadístico
 
 ```{r}
 summary(df)
 ```
 
-## Estructura del DatFrame
+Podemos empezar a explorar la variable lowest_yearly_earnings y nos percatamos que:
+
+-   **Mínimo (Min.):** La ganancia mínima al año es cero, lo que sugiere que hay casos en los que no se generan ingresos en YouTube.
+
+-   **Primer Cuartil (1st Qu.):** El 25% de las ganancias anuales se encuentran por debajo de \$32,650.
+
+-   **Mediana (Median):** La mediana, que es la mitad de las ganancias, está en \$159,500. Esto significa que el 50% de las ganancias están por encima de este valor y el 50% están por debajo.
+
+-   **Media (Mean):** La media (o promedio) de las ganancias es \$442,257, lo cual indica que, en promedio, las ganancias son más altas que la mediana. Esto podría deberse a la presencia de valores extremadamente altos.
+
+-   **Tercer Cuartil (3rd Qu.):** El 75% de las ganancias anuales se encuentran por debajo de \$455,100.
+
+-   **Máximo (Max.):** La ganancia máxima anual es de \$10,200,000. Este valor representa el extremo superior de las ganancias observadas en el conjunto de datos.
+
+Como podemos apreciar, incluso en la variable lowest_yearly_earnings, la ganancia máxima de un Youtuber llega a \$10,200,000, lo cual nos indica que estamos hablando de una industria que genera ganancias millonarias.
+
+## Estructura del DataFrame
 
 ```{r}
 str(df)
@@ -73,6 +148,14 @@ non_null_count
 library(naniar)
 naniar::vis_miss(df)
 ```
+
+---
+---
+---
+
+## MANIPULACIÓN Y DESCRIPCIÓN DE DATOS
+
+Por la información que nos muestra el gráfico anterior y debido a que todas las variables con valores nulos son irrelevantes para nuestro análisis, decidimos crear un nuevo dataframe, prescindiendo de dichas variables.
 
 ## Nuevo DataFrame: df2 (sin variables con valores nulos o vacíos)
 
@@ -93,10 +176,8 @@ str(df2)
 ## Nuevo DataFrame: df3 (con promedio de ganancias anuales)
 
 ```{r}
-#Se crea df3
 df3 <- df2
-
-#Se agrega la columna promedio de ganancias anuales
+#Se agrega la columna promedio de ganancias anuales.
 df3$promedio_yearly_earnings <- rowMeans(df3[c("highest_yearly_earnings", "lowest_yearly_earnings")], na.rm = TRUE)
 ```
 
@@ -106,12 +187,30 @@ df3$promedio_yearly_earnings <- rowMeans(df3[c("highest_yearly_earnings", "lowes
 str(df3)
 ```
 
+```{r}
+summary(df3)
+```
+
+Después de crear una variable que refleja las ganancias anuales (promedio_yearly_earnings) el cual resulta el promedio de las ganancias anuales más bajas y las ganancias anuales más altas, nos damos cuenta de lo siguiente:
+
+-   **Mínimo (Min.):** El valor mínimo de las ganancias anuales es 0. Esto indica que hay canales que no generan ingresos durante el período considerado.
+
+-   **Primer Cuartil (1st Qu.):** El 25% de los canales tienen ganancias anuales de 277,200 o menos. El primer cuartil es una medida que separa el 25% inferior de los datos.
+
+-   **Mediana (Median):** La mediana de las ganancias anuales es 1,379,750. Esto significa que el 50% de los canales tienen ganancias anuales iguales o inferiores a este valor, y el 50% restante tiene ganancias superiores.
+
+-   **Media (Mean):** La media de las ganancias anuales es 3,762,036. Esto es el promedio de todas las ganancias anuales y puede estar influenciado por valores atípicos en los extremos superiores.
+
+-   **Tercer Cuartil (3rd Qu.):** El 75% de los canales tienen ganancias anuales de 3,877,550 o menos. El tercer cuartil separa el 25% superior de los datos.
+
+-   **Máximo (Max.):** El valor máximo de las ganancias anuales es 86,800,000. Este es el canal con las ganancias más altas en el conjunto de datos.
+
 ## Gráfico de Tendencias (Dispersión)
 
 ## Gráfico de Dispersión de Promedio de ganacias anuales por números de vistas
 
 ```{r}
-# Carga la librería
+
 library(ggplot2)
 
 
@@ -128,57 +227,63 @@ plot2 <- ggplot(df3, aes(x = uploads, y = promedio_yearly_earnings)) +
   ggtitle("Tendencia entre \n Cargas y \n Ganancias Anuales") +
   theme_minimal()
 
-# Crea un gráfico de dispersión con línea de regresión para 'subscribers' vs 'average_yearly_earnings'
+# Se crea un gráfico de dispersión con línea de regresión para 'subscribers' vs 'average_yearly_earnings'
 plot3 <- ggplot(df3, aes(x = subscribers, y = promedio_yearly_earnings)) +
   geom_point() +
   geom_smooth(method = "lm", col = "red") +
   ggtitle("Tendencia entre \n Suscriptores y \n Ganancias Anuales") +
   theme_minimal()
 
-# Muestra los gráficos en una fila
+# Se muestra los gráficos en una fila
 library(gridExtra)
 grid.arrange(plot1, plot2, plot3, ncol = 2)
 ```
 
+Podemos apreciar que entre Vistas de Videos y Ganancias Anuales existe una tendencia más marcada que entre Cargas de Videos y Ganancias Anuales, e incluso más que la de Suscriptores y Ganancias Anuales.
+
+---
+---
+---
+
 ## Mapa de Calor
 
 ```{r}
-# Carga las librerías
 library(ggplot2)
 library(corrplot)
 
-# Supongamos que df3 es tu conjunto de datos
-# Puedes ajustar el código según la estructura exacta de tu conjunto de datos
-
-# Selecciona las columnas relevantes
 df3_corr <- df3[, c('promedio_yearly_earnings', 'video.views', 'uploads', 'subscribers')]
 
-# Calcula la matriz de correlación
+# Se calcula la matriz de correlación
 corr_matrix <- cor(df3_corr)
 
-# Crea un mapa de calor de la matriz de correlación con tonalidades de rojo
+# Se crea un mapa de calor de la matriz de correlación con tonalidades de rojo
 corrplot(corr_matrix, method = "color", type = "upper", col = colorRampPalette(c("white", "darkred"))(50), addCoef.col = "white", tl.cex = 0.7)
 ```
+
+La correlación más alta del Promedio de Ganancia Anual es de 0.55 con respecto a las Vistas de Videos, la cual sugiere que es la variable que influye más en las ganancia de los Youtubers.
+
+---
+---
+---
 
 ## Promedio de ganancias anuales por Categorías
 
 ```{r}
-# install.packages("plotly")
-# install.packages("dplyr")
+
 library(plotly)
 library(dplyr)
 
-# Filtra las filas donde la categoría no es "nan"
+# Se filtra las filas donde la categoría no es "nan"
 df3_filtered <- df3 %>%
   filter(!is.na(category) & category != "nan")
 
-# Calcula el promedio de las ganancias anuales por categoría
+# Se calcula el promedio de las ganancias anuales por categoría
 categories <- df3_filtered %>%
   group_by(category) %>%
   summarise(promedio_yearly_earnings = mean(promedio_yearly_earnings)) %>%
   arrange(desc(promedio_yearly_earnings))
 
-# Crea el gráfico de barras con degradado de colores
+# Se crea el gráfico de barras con degradado de colores
 fig <- plot_ly(
   data = categories,
   x = ~reorder(category, promedio_yearly_earnings),
@@ -190,7 +295,7 @@ fig <- plot_ly(
   height = 500
 )
 
-# Personaliza el diseño del gráfico
+# Se personaliza el diseño del gráfico
 fig <- fig %>% layout(
   title = "Promedio de ganancia anual por Categoría",
   xaxis = list(title = "Categoría", titlefont_size = 16, categoryorder = "total descending"),
@@ -198,63 +303,70 @@ fig <- fig %>% layout(
   showlegend = FALSE
 )
 
-# Muestra el gráfico
+# Se muestra el gráfico
 fig
 ```
+
+Se observa que la categoría con las ganancias anuales más altas es la de "Shows", con un monto de 12.96 millones de dólares. Además, en el sexto lugar se encuentra la categoría de "Educación" que también tiene una ganancia anual considerable de 4,42 millones de dólares.
+
+---
+---
+---
 
 ## Nube de Palabras de los Youtubers con más Suscriptores
 
 ```{r}
-# Carga las librerías
 library(wordcloud2)
 library(tm)
 
-# Puedes ajustar el código según la estructura exacta de tu conjunto de datos
+# Se ajusta el código según la estructura exacta de tu conjunto de datos
 df$Youtuber <- iconv(df$Youtuber, from = "UTF-8", to = "UTF-8", sub = "")
-# Crea un objeto Corpus para procesar el texto
+# Se crea un objeto Corpus para procesar el texto
 corpus <- Corpus(VectorSource(df$Youtuber))
-# Limpia el texto de manera más exhaustiva
+# Se limpia el texto de manera más exhaustiva
 corpus <- tm_map(corpus, content_transformer(tolower))
-## Warning in tm_map.SimpleCorpus(corpus, content_transformer(tolower)):
-## transformation drops documents
+
 corpus <- tm_map(corpus, removePunctuation)
-## Warning in tm_map.SimpleCorpus(corpus, removePunctuation): transformation drops
-## documents
+
 corpus <- tm_map(corpus, removeNumbers)
-## Warning in tm_map.SimpleCorpus(corpus, removeNumbers): transformation drops
-## documents
+
 corpus <- tm_map(corpus, removeWords, stopwords("english"))
-## Warning in tm_map.SimpleCorpus(corpus, removeWords, stopwords("english")):
-## transformation drops documents
+
 corpus <- tm_map(corpus, stripWhitespace)
-## Warning in tm_map.SimpleCorpus(corpus, stripWhitespace): transformation drops
-## documents
+
 corpus <- tm_map(corpus, content_transformer(function(x) iconv(x, to = "UTF-8", sub =
 " ")))
-## Warning in tm_map.SimpleCorpus(corpus, content_transformer(function(x) iconv(x,
-## : transformation drops documents
-# Crea un dataframe con el nombre del Youtuber y sus suscriptores
+
+# Se crea un dataframe con el nombre del Youtuber y sus suscriptores
 youtubers_data <- data.frame(Youtuber = sapply(corpus, function(x) as.character(x)),
 Subscribers = df$subscribers)
 library(colorRamps)
-# Definir una paleta de colores de degradado rojo
+# Se define una paleta de colores de degradado rojo
 red_palette <- colorRampPalette(c("White", "red"))
-# Especifica lana fuente Arial
-font <- "Arial Narrow "
-# Crea el gráfico de nube de palabras con wordcloud2 y la fuente especificada
+# Se especifica lana fuente Arial
+font <- "Arial Narrow"
+# Se crea el gráfico de nube de palabras con wordcloud2 y la fuente especificada
 wordcloud2(data = youtubers_data, color = red_palette(100), backgroundColor = "black",
 fontFamily = font)
 ```
+
+Entre los 100 primeros Youtubers con más subscriptores de nuestro dataset, podemos apreciar fácilmente que el nombre más grande es el de Tseries, seguido de Set india y Mrbeast.
+
+---
+---
+---
 
 ## Los 10 Youtubers con más Suscriptores (Millones)
 
 ```{r}
 library(ggplot2)
 top10 <- head(df3, 10)
-# Ajusta el ancho completo del gráfico
+
+# Se ajusta el ancho completo del gráfico
 ggplot(top10, aes(x = reorder(Youtuber, -subscribers), y = subscribers, fill = subscribers)) +
-  geom_bar(stat = "identity", width = 1.0) +  # Ajusta el ancho de las barras aquí
-geom_text(aes(label = subscribers/1000000), vjust = -0.5, size = 2.4) +  # Agrega etiquetas
+  geom_bar(stat = "identity", width = 1.0) + 
+geom_text(aes(label = subscribers/1000000), vjust = -0.5, size = 2.4) +  
+  
   labs(title = "Los 10 Youtubers con más Suscriptores (Millones)", x = "Youtuber", y = "suscripciones") +
   theme(
 axis.text.x = element_text(angle = 45, hjust = 1),  # Ajusta el ángulo de las etiquetas en el eje x
@@ -263,6 +375,12 @@ axis.text.x = element_text(angle = 45, hjust = 1),  # Ajusta el ángulo de las e
 ) +
   scale_fill_gradient(low = "pink", high = "darkred")  # Define el degradado de colores
 ```
+
+Se observa que el canal más popular es "T-Series" con 245 millones de suscriptores.
+
+---
+---
+---
 
 ## Porcentaje de Canales por Categoría
 
@@ -273,20 +391,20 @@ df3_category_sin_nan <- df3_category[df3_category$category != "nan", , drop = FA
 
 str(df3_category_sin_nan)
 
-# Calcula la frecuencia de cada valor en 'category'
+# Se calcula la frecuencia de cada valor en 'category'
 category_counts <- table(df3_category_sin_nan$category)
 
-# Calcula los porcentajes
+# Se calcula los porcentajes
 category_percentages <- prop.table(category_counts) * 100
 
-# Crea un dataframe con la información
+# Se crea un dataframe con la información
 category_summary <- data.frame(
   category = names(category_counts),
   count = as.numeric(category_counts),
   percentage = as.numeric(category_percentages)
 )
 
-# Muestra el resultado
+# Se muestra el resultado
 category_summary
 
 
@@ -294,13 +412,13 @@ library(plotly)
 library(dplyr)
 
 
-# Calcula la frecuencia de cada categoría
+# Se Calcula la frecuencia de cada categoría
 category <- table(df3_category_sin_nan$category)
 
-# Ordena las categorías por frecuencia ascendente
+# Se ordena las categorías por frecuencia ascendente
 category <- sort(category)
 
-# Crea el gráfico de pastel con plot_ly
+# Se crea el gráfico de pastel con plot_ly
 pie_chart <- plot_ly(
   labels = names(category),
   values = category,
@@ -308,16 +426,22 @@ pie_chart <- plot_ly(
   marker = list(colors = colorRampPalette(c("green", "red"))(length(category)))
 )
 
-# Personaliza el diseño del gráfico
+# Se personaliza el diseño del gráfico
 pie_chart <- pie_chart %>% layout(
-  title = "Canales por Categorías",
+  title = "Porentaje de Canales por Categorías de un total de 995",
   uniformtext = list(minsize = 10, mode = 'hide'),
   template = 'plotly_white'
 )
 
-# Muestra el gráfico
+# Se muestra el gráfico
 pie_chart
 ```
+
+El porcentaje de canales más alto, por categorías, es el de "Entretenimiento" con 25.4% con 241 canales.
+
+---
+---
+---
 
 ## Los 10 Países con mayor cantidad de Youtubers
 
@@ -337,12 +461,12 @@ print(country_counts)
 
 top_10_countries <- head(sort(country_counts, decreasing = TRUE), 10)
 
-# Muestra los 10 valores más altos
+# Se muestran los 10 valores más altos
 print(top_10_countries)
 
 library(plotly)
 
-# Crea el gráfico de embudo
+# Se crea el gráfico de embudo
 fig <- plot_ly(
   type = "funnel",
   x = top_10_countries,
@@ -353,7 +477,7 @@ fig <- plot_ly(
   )
 )
 
-# Personaliza el diseño del gráfico
+# Se personaliza el diseño del gráfico
 fig <- fig %>% layout(
   title = "Top 10 de Países con más de Youtubers",
   template = 'plotly_white',
@@ -362,9 +486,15 @@ fig <- fig %>% layout(
   textfont = list(size = 12)  # Ajusta este valor según sea necesario
 )
 
-# Muestra el gráfico
+# Se muestra el gráfico
 fig
 ```
+
+El país con mayor cantidad de youtubes es Estados Unidos con 313 canales.
+
+---
+---
+---
 
 ## Youtuber en el Mundo
 
@@ -372,19 +502,19 @@ fig
 library(dplyr)
 library(plotly)
 
-# Calcula la frecuencia de cada país
+# Se calcula la frecuencia de cada país
 conteos_por_pais <- df3_Country_sin_nan %>%
   count(Country, name = "Contar_por_pais")
 
 
-# Combina el resultado con el dataframe original
+# Se combina el resultado con el dataframe original
 df3_Country_sin_nan_2 <- left_join(df3_Country_sin_nan, conteos_por_pais, by = "Country")
 
-# Elimina duplicados en la variable Country
+# Se elimina duplicados en la variable país
 df3_Country_sin_nan_2 <- df3_Country_sin_nan_2 %>% 
   distinct(Country, .keep_all = TRUE)
 
-# Define la escala de colores personalizada
+# Se define la escala de colores personalizada
 custom_colorscale <- c(
   c(0, "#115f9a"),
   c(0.05, "#1984c5"),
@@ -397,7 +527,7 @@ custom_colorscale <- c(
   c(1, "#f4f100")
 )
 
-# Crea el gráfico de coropletas
+# Se crea el gráfico de coropletas
 fig <- plot_ly(
   data = df3_Country_sin_nan_2,
   type = "choropleth",
@@ -410,7 +540,7 @@ fig <- plot_ly(
   title = "Distribución de Canales en el Mundo"
 )
 
-# Personaliza el diseño del gráfico
+# Se personaliza el diseño del gráfico
 fig <- fig %>% layout(
   title = list(text = "Distribución de Canales en el Mundo", x = 0.3),
   title_font = list(size = 18),
@@ -426,9 +556,23 @@ fig <- fig %>% layout(
   )
 )
 
-# Muestra el gráfico
+# Se muestra el gráfico
 fig
 ```
+
+```{r}
+print("--->")
+```
+
+---
+---
+---
+
+La mayor cantidad de youtubers del mundo se encuentran en Estados Unidos. Y en Sudamérica se encuentran en Brasil.
+
+---
+---
+---
 
 ## Promedio de Ganancias anuales por País
 
@@ -436,17 +580,17 @@ fig
 library(plotly)
 library(dplyr)
 
-# Filtra las filas donde la categoría no es "nan"
+# Se filtra las filas donde la categoría no es "nan"
 df3_filtered <- df3 %>%
   filter(!is.na(Country) & Country != "nan")
 
-# Calcula el promedio de las ganancias anuales por país
+# Se calcula el promedio de las ganancias anuales por país
 Country <- df3_filtered %>%
   group_by(Country) %>%
   summarise(promedio_yearly_earnings = mean(promedio_yearly_earnings)) %>%
   arrange(desc(promedio_yearly_earnings))
 
-# Crea el gráfico de barras con degradado de colores
+# Se crea el gráfico de barras con degradado de colores
 fig <- plot_ly(
   data = Country,
   x = ~reorder(Country, promedio_yearly_earnings),
@@ -458,7 +602,7 @@ fig <- plot_ly(
   height = 500
 )
 
-# Personaliza el diseño del gráfico
+# Se personaliza el diseño del gráfico
 fig <- fig %>% layout(
   title = "Ganancia anual promedio por país",
   xaxis = list(title = "País", titlefont_size = 16, categoryorder = "total descending"),
@@ -466,9 +610,15 @@ fig <- fig %>% layout(
   showlegend = FALSE
 )
 
-# Muestra el gráfico
+# Se muestra el gráfico
 fig
 ```
+
+Letonia (Latvia) es el país con el promedio más alto de ganancias anuales, con 31.75 millones de dólares.
+
+---
+---
+---
 
 ## Ganancias Anuales Promedio de Youtubers por Suscriptores
 
@@ -479,14 +629,14 @@ df3_youtuber_ganancia <- df3
 df3_top_10 <- df3_youtuber_ganancia %>%
   top_n(10, promedio_yearly_earnings)
 
-# Muestra el nuevo conjunto de datos con las 10 cifras más altas
+# Se muestra el nuevo conjunto de datos con las 10 cifras más altas
 df3_top_10
 
 df3_top_10$Youtuber <- iconv(df3_top_10$Youtuber, from = "UTF-8", to = "UTF-8", sub = "")
 
 library(ggplot2)
 
-# Ajusta el tamaño del texto
+# Se ajusta el tamaño del texto
 ggplot(df3_top_10, aes(x = Youtuber, y = subscribers, fill = promedio_yearly_earnings)) +
   geom_bar(stat = "identity") +
   geom_text(aes(label = paste0("$", promedio_yearly_earnings/1000000,"M")), vjust = -0.5, size = 2.4) +  # Ajusta el tamaño del texto
@@ -500,3 +650,41 @@ ggplot(df3_top_10, aes(x = Youtuber, y = subscribers, fill = promedio_yearly_ear
   ) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+
+"Kimpro" es el canal de youtube que tiene el promedio más alto de ganancias anuales, con 86.8 millones de dólares, a pesar de no tener la mayor cantidad de suscriptores.
+
+---
+---
+---
+
+## DISCUSIÓN DE RESULTADOS
+
+-   El presente trabajo ha contribuido considerablemente en la formación de los integrantes del grupo, al analizar, procesar y describir datos del Dataset ya mencionado.
+
+-   Las empresas así como los creadores de material multimedia, para asegurar el éxito en youtube, deben considerar el tipo de contenido que desean difundir a su audiencia.
+
+-   Las empresas del entrenimiento, la educación y los negocios en general, según lo demostrado en el presente trabajo, deberían invertir en promocionar sus productos y/o servicios en Youtube.
+
+-   Los Youtubers o Canales de Youtube, pueden generar ingresos económicos millonarios debido a su alcance mundial, pero también se debe tener en cuenta que no todos los canales generan altos ingresos económicos.
+
+## PRINCIPALES LIMITACIONES
+
+-   Dataset con cantidad de datos insuficiente para análisis más profundos y detallados.
+
+-   Dataset con variables que contienen con valores nulos y vacíos.
+
+-   Experiencia limitada de los integrantes del grupo en el análisis y tratamientos de datos.
+
+## CONCLUSIONES
+
+Según los resultados y hallazgos del presente trabajo, podemos concluir que:
+
+-   El éxito (económico, publicitario, académico, etc.) en Youtube depende principalmente del número de vistas de los videos, entendiéndose también que el número de subscriptores no influye determinantemente en las ganancias de los Youtubers.
+
+-   El país que más youtubers tiene no necesariamente es el que obtiene mayores ganancias.
+
+-   La categoria de "Entretenimiento" es la que tiene la mayor cantidad de vistas. Y la que tiene menor cantidad de vistas es la de "Viajes y eventos".
+
+-   El Top 10 de los youtubers del presente trabajo, identifica al canal "T Series" de India con el mayor número de suscriptores, 245 Millones. Y con el menor número de suscriptores al canal "Vlad and Niki" de Estados Unidos con 98.9 Millones.
+
+-   Finalmente, Youtube ha desmostrado ser una plataforma porderosa de alcance mundial que ha transformado la forma de difusión y consumo de contenido audio visual y a la vez brinda oportunidades considerables a las empresas y/o creadores audiovisuales de todo el mundo.
